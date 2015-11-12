@@ -8,13 +8,13 @@ Visuals: ??? <br />
 Customize your scientist and then battle with your friends creations to see who is the strongest! <br />
 
 ##Head Customizations:
--No modification - Bonus HP <br />
--Tesla helmet - Able to zap nearby enemies with lightning <br />
--Hat mallet - Stun person infront of you <br />
--Flamethrower - Burn enemies infront of you <br />
--Propellor hat - Dodge <br />
--Lazer - Burst of damage to one person infront of you <br />
--Reinforced helmet - Can't take damage from falling objects or people <br />
+No modification - Bonus HP <br />
+Tesla helmet - Able to zap nearby enemies with lightning <br />
+Hat mallet - Stun person infront of you <br />
+Flamethrower - Burn enemies infront of you <br />
+Propellor hat - Dodge <br />
+Lazer - Burst of damage to one person infront of you <br />
+Reinforced helmet - Can't take damage from falling objects or people <br />
 
 ##Arm Customizations:
 No modification - Can pick up weapons and use items <br />
