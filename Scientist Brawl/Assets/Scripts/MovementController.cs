@@ -22,14 +22,14 @@ public class MovementController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		float move = Input.GetAxis ("Horizontal");
+		float move = Input.GetAxis ("LeftXAxis1");
 		rb.velocity = new Vector2(move * maxMoveSpd, rb.velocity.y);
 
 		if 		(move >=  0.1f && !facingRight) { Flip (); } 
 		else if (move <= -0.1f &&  facingRight) { Flip (); }
 
 		onGround = Physics2D.OverlapCircle (groundCheck.position, 0.1f, whatIsGround);
-		if(Input.GetButton("Jump") && onGround)	Jump ();
+		if(Input.GetButton("A1") && onGround)	Jump ();
 	}
 
 	void Jump(){

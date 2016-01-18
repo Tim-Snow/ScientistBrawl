@@ -4,7 +4,7 @@ using System.Collections;
 public class WeaponSpawner : MonoBehaviour {
 
 	public 	Transform 	spawnPoint;
-	public 	int 		respawnTime 	= 5;
+	public 	int 		respawnTime 	= 2;
 	public 	int 		typeOfSpawner 	= 0;	// 0 = random //1 = rocket launcher // 2 = ak // 3 = chainsaw
 
 	[HideInInspector]
@@ -15,6 +15,10 @@ public class WeaponSpawner : MonoBehaviour {
 
 	void Start () {
 		SpawnWeapon ();
+	}
+
+	public void WeaponTaken(){
+		holdingWeapon = false;
 	}
 
 	void Update () {
@@ -44,10 +48,11 @@ public class WeaponSpawner : MonoBehaviour {
 			break;
 		}
 		
-		Instantiate (weapon);
-		weapon.transform.position = spawnPoint.position;
-		weapon.GetComponent<PickupObject> ().spawner = transform.gameObject.GetComponent<WeaponSpawner>();
-		weapon.GetComponent<PickupObject> ().inSpawner = true;
+		GameObject theWeap = Instantiate (weapon);
+		theWeap.transform.position = spawnPoint.position;
+		theWeap.transform.parent = gameObject.transform;
+		theWeap.GetComponent<PickupObject> ().SetSpawner(theWeap.transform.parent);
+		theWeap.GetComponent<PickupObject> ().inSpawner = true;
 		holdingWeapon = true;
 	}
 

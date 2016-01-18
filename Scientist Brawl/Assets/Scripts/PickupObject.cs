@@ -6,15 +6,14 @@ public class PickupObject : MonoBehaviour {
 	public 	Transform		groundCheckPos;
 	public 	LayerMask		whatIsGround;
 	public 	bool			inSpawner;
-	public 	WeaponSpawner  	spawner;
 
+	private Transform  		spawner;
 	private Transform 		playerHolding;
 	private Transform		holdPosition;
 
 	private bool			isHeld;
 	private bool 			playerNear;
 	private bool			facingRight;
-	private bool			playerPickedUpFacingRight;
 	private bool			onGround;
 
 	void Start () {
@@ -25,8 +24,15 @@ public class PickupObject : MonoBehaviour {
 	void FixedUpdate () {
 		CheckGround ();
 
-		if (Input.GetButton("Pickup") 	&& playerNear) 	PickUp();
-		if (Input.GetButton("Drop") 	&& isHeld) 		Drop ();
+		if (Input.GetButton ("B1") && playerNear) {
+			if(playerHolding != null){
+				if(playerHolding.GetComponent<ActionController>().canHoldWeapon){
+					playerHolding.GetComponent<ActionController>().canHoldWeapon = false;
+					PickUp ();
+				}
+			}
+		}
+		if (Input.GetButton("Y1") 	&& isHeld) 		Drop ();
 
 		if (isHeld)		transform.position = holdPosition.position;
 
@@ -34,6 +40,10 @@ public class PickupObject : MonoBehaviour {
 						 new Vector3(transform.position.x, 
 					                 transform.position.y - 0.1f, 
 					                 transform.position.z);
+	}
+
+	public void SetSpawner(Transform sp){
+		spawner = sp;
 	}
 
 	void CheckGround(){
@@ -58,8 +68,8 @@ public class PickupObject : MonoBehaviour {
 	void PickUp(){
 		if (!isHeld) {
 			if(inSpawner){
-				spawner.holdingWeapon 	= false;
-				inSpawner		 		= false;
+				spawner.GetComponent<WeaponSpawner>().WeaponTaken();
+				inSpawner = false;
 			}
 
 			isHeld 			 = true;
@@ -69,8 +79,6 @@ public class PickupObject : MonoBehaviour {
 			    !facingRight &&  playerHolding.GetComponent<MovementController> ().facingRight) {
 					Flip ();
 			}
-
-			playerPickedUpFacingRight = facingRight;
 
 			if(GetComponent<PolygonCollider2D> () != null){
 				GetComponent<PolygonCollider2D> ().enabled = false;
@@ -89,15 +97,16 @@ public class PickupObject : MonoBehaviour {
 
 	void Drop(){
 		if (isHeld) {
-			isHeld 			 = false;
-			transform.parent = null;
-			facingRight 	 = playerHolding.GetComponent<MovementController> ().facingRight;
-
 			if(GetComponent<PolygonCollider2D> () != null){
 				GetComponent<PolygonCollider2D> ().enabled = true;
 			} else {
 				GetComponent<BoxCollider2D> ().enabled = true;
 			}
+
+			playerHolding.GetComponent<ActionController>().canHoldWeapon = true;
+			facingRight 	 = playerHolding.GetComponent<MovementController> ().facingRight;
+			isHeld 			 = false;
+			transform.parent = null;
 		}
 	}
 }
