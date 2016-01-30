@@ -3,14 +3,15 @@ using System.Collections;
 
 public class MovementController : MonoBehaviour {
 
-	public		int				playerNumber;
+	public		string			joystickString;
 	public 		float 			maxMoveSpd;
 	public		float			jumpHeight;
 	[HideInInspector]
 	public 		bool 			facingRight;
+	[HideInInspector]
+	public		Animator		anim;
 
 	public		Transform		groundCheck;
-	public 		LayerMask		whatIsGround;
 	
 	private		bool			onGround;
 
@@ -19,21 +20,42 @@ public class MovementController : MonoBehaviour {
 	void Start () {
 		facingRight = true;
 		rb 			= GetComponent<Rigidbody2D> ();
+		anim 		= gameObject.transform.GetChild(3).GetComponent<Animator> ();
+
+		anim.SetBool("Moving", false);
 	}
 
 	void FixedUpdate () {
-		float move = Input.GetAxis ("LeftXAxis1");
+		float move = Input.GetAxis ("LeftXAxis" + joystickString);
 		rb.velocity = new Vector2(move * maxMoveSpd, rb.velocity.y);
 
 		if 		(move >=  0.1f && !facingRight) { Flip (); } 
 		else if (move <= -0.1f &&  facingRight) { Flip (); }
 
-		onGround = Physics2D.OverlapCircle (groundCheck.position, 0.1f, whatIsGround);
-		if(Input.GetButton("A1") && onGround)	Jump ();
+		if (move >= 0.05f || move <= -0.05f) {
+			anim.SetBool("Moving", true);
+			anim.SetFloat("Speed", Mathf.Abs(move));
+		} else { 
+			anim.SetBool("Moving", false);
+		}
+
+		onGround = Physics2D.OverlapCircle (groundCheck.position, 0.1f, 1 << LayerMask.NameToLayer("Ground"));
+		anim.SetBool ("On Ground", onGround);
+
+		if(Input.GetButton("A" + joystickString) && onGround)	Jump ();
+
+		float aim = Input.GetAxis ("RightXAxis" + joystickString);
+
+		if (facingRight && aim < 0f)
+			Flip ();
+		if (!facingRight && aim > 0f)
+			Flip ();
+
 	}
 
 	void Jump(){
 		rb.velocity = new Vector2 (rb.velocity.x, jumpHeight);
+		anim.SetBool ("On Ground", false);
 	}
 
 	void Flip(){

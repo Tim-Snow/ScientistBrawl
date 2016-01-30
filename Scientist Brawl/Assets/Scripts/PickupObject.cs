@@ -3,87 +3,80 @@ using System.Collections;
 
 public class PickupObject : MonoBehaviour {
 
-	public 	Transform		groundCheckPos;
-	public 	LayerMask		whatIsGround;
-	public 	bool			inSpawner;
+	public  Transform  			spawner;
+	public 	Transform			groundCheckPos;
+	public 	Transform 			shootPoint;
+	[HideInInspector]
+	public 	bool				inSpawner;
+	
+	private bool				isHeld;
+	private bool				facingRight;
+	private bool				onGround;
 
-	private Transform  		spawner;
-	private Transform 		playerHolding;
-	private Transform		holdPosition;
-
-	private bool			isHeld;
-	private bool 			playerNear;
-	private bool			facingRight;
-	private bool			onGround;
+	private Transform 			playerHolding;
+	private ActionController 	acCont;
+	private MovementController 	moveCont;
 
 	void Start () {
-		playerNear 	= false;
 		facingRight = true;
+		onGround 	= false;
 	}
 
 	void FixedUpdate () {
 		CheckGround ();
 
-		if (Input.GetButton ("B1") && playerNear) {
-			if(playerHolding != null){
-				if(playerHolding.GetComponent<ActionController>().canHoldWeapon){
-					playerHolding.GetComponent<ActionController>().canHoldWeapon = false;
-					PickUp ();
-				}
-			}
-		}
-		if (Input.GetButton("Y1") 	&& isHeld) 		Drop ();
-
-		if (isHeld)		transform.position = holdPosition.position;
+		if (isHeld)		transform.position = acCont.aimPoint.transform.position;
 
 		if (!onGround && !inSpawner) transform.position = 
 						 new Vector3(transform.position.x, 
 					                 transform.position.y - 0.1f, 
 					                 transform.position.z);
 	}
-
-	public void SetSpawner(Transform sp){
-		spawner = sp;
-	}
-
+	
 	void CheckGround(){
-		onGround = Physics2D.OverlapCircle(groundCheckPos.position, 0.02f, whatIsGround);
+		onGround = Physics2D.OverlapCircle(groundCheckPos.position, 0.02f, 1 << LayerMask.NameToLayer("Ground"));
 	}
 
 	void OnTriggerEnter2D(Collider2D coll){
 		if (coll.gameObject.layer == LayerMask.NameToLayer ("Player")) {
-			playerHolding = coll.gameObject.transform;
-			holdPosition = playerHolding.transform.GetChild(1).transform;
-			playerNear = true;
+			coll.GetComponent<ActionController>().nearbyPickup = this.transform;
 		}
 	}
 
 	void OnTriggerExit2D(Collider2D coll){
 		if (coll.gameObject.layer == LayerMask.NameToLayer ("Player")) {
-			playerHolding = null;
-			playerNear = false;
+			if(coll.GetComponent<ActionController>().nearbyPickup == this.transform)
+				coll.GetComponent<ActionController>().nearbyPickup = null;
 		}
 	}
 
-	void PickUp(){
+	public void PickUp(Transform player){
 		if (!isHeld) {
-			if(inSpawner){
-				spawner.GetComponent<WeaponSpawner>().WeaponTaken();
-				inSpawner = false;
-			}
+			playerHolding 	= player;
+			acCont   		= playerHolding.GetComponent<ActionController> ();
+			moveCont 		= playerHolding.GetComponent<MovementController> ();
 
-			isHeld 			 = true;
-			transform.parent = playerHolding.transform;
+			if (acCont.canHoldWeapon) {
+				isHeld 				 = true;
+				acCont.canHoldWeapon = false;
+				acCont.holdingWeapon = true;
+				transform.parent 	 = playerHolding.transform;
+				transform.position 	 = acCont.weaponHoldPosition.position;
 
-			if ( facingRight && !playerHolding.GetComponent<MovementController> ().facingRight ||
-			    !facingRight &&  playerHolding.GetComponent<MovementController> ().facingRight) {
+				if (inSpawner) {
+					spawner.GetComponent<WeaponSpawner> ().WeaponTaken ();
+					inSpawner = false;
+				}
+
+				if (facingRight && !moveCont.facingRight ||	!facingRight && moveCont.facingRight) {
 					Flip ();
-			}
+				}
 
-			if(GetComponent<PolygonCollider2D> () != null){
-				GetComponent<PolygonCollider2D> ().enabled = false;
-			} else {
-				GetComponent<BoxCollider2D> ().enabled = false;
+				if (GetComponent<PolygonCollider2D> () != null) {
+					GetComponent<PolygonCollider2D> ().enabled = false;
+				} else {
+					GetComponent<BoxCollider2D> ().enabled = false;
+				}
 			}
 		}
 	}
@@ -95,7 +88,7 @@ public class PickupObject : MonoBehaviour {
 		transform.localScale = theScale;
 	}
 
-	void Drop(){
+	public void Drop(){
 		if (isHeld) {
 			if(GetComponent<PolygonCollider2D> () != null){
 				GetComponent<PolygonCollider2D> ().enabled = true;
@@ -103,10 +96,14 @@ public class PickupObject : MonoBehaviour {
 				GetComponent<BoxCollider2D> ().enabled = true;
 			}
 
-			playerHolding.GetComponent<ActionController>().canHoldWeapon = true;
-			facingRight 	 = playerHolding.GetComponent<MovementController> ().facingRight;
-			isHeld 			 = false;
-			transform.parent = null;
+			transform.rotation 	 = Quaternion.identity;
+			facingRight 	 	 = moveCont.facingRight;
+			acCont.holdingWeapon = false;
+			playerHolding 		 = null;
+			acCont 				 = null;
+			moveCont 			 = null;
+			isHeld 			 	 = false;
+			transform.parent 	 = null;
 		}
 	}
 }

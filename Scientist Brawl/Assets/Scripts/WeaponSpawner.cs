@@ -21,7 +21,7 @@ public class WeaponSpawner : MonoBehaviour {
 		holdingWeapon = false;
 	}
 
-	void Update () {
+	void FixedUpdate () {
 		if (!holdingWeapon) {
 			weapon = null;
 			StartCoroutine(SpawnWeaponCountdown());
@@ -48,12 +48,13 @@ public class WeaponSpawner : MonoBehaviour {
 			break;
 		}
 		
-		GameObject theWeap = Instantiate (weapon);
-		theWeap.transform.position = spawnPoint.position;
-		theWeap.transform.parent = gameObject.transform;
-		theWeap.GetComponent<PickupObject> ().SetSpawner(theWeap.transform.parent);
+		holdingWeapon 				= true;
+		GameObject theWeap 			= Instantiate (weapon);
+		theWeap.transform.position 	= spawnPoint.position;
+		theWeap.transform.parent 	= gameObject.transform;
+		theWeap.GetComponent<PickupObject> ().spawner 	= this.transform;
 		theWeap.GetComponent<PickupObject> ().inSpawner = true;
-		holdingWeapon = true;
+
 	}
 
 	IEnumerator SpawnWeaponCountdown(){
