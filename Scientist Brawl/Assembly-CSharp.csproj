@@ -46,7 +46,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\AK47.cs" />
      <Compile Include="Assets\Scripts\ActionController.cs" />
+     <Compile Include="Assets\Scripts\Chainsaw.cs" />
      <Compile Include="Assets\Scripts\MovementController.cs" />
      <Compile Include="Assets\Scripts\PickupObject.cs" />
      <Compile Include="Assets\Scripts\PlayerManager.cs" />

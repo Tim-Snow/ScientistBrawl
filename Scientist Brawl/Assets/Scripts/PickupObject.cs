@@ -3,6 +3,7 @@ using System.Collections;
 
 public class PickupObject : MonoBehaviour {
 
+	public 	string				name;
 	public  Transform  			spawner;
 	public 	Transform			groundCheckPos;
 	public 	Transform 			shootPoint;
