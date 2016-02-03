@@ -14,13 +14,12 @@ public class RocketLauncher : MonoBehaviour {
 	private bool 		reloading, delay;
 	private int 		ammoRemaining;
 	private Transform 	shootPoint;
-	private Quaternion 	rotation;
 
 	void Start () {
 		rechargeTime 	= 0.5f;
 		reloadTime 		= 2f;
 		ammoAmount 		= 2;
-		missileSpeed 	= 100;
+		missileSpeed 	= 250;
 		ammoRemaining 	= ammoAmount;
 		delay 			= false;
 	}
@@ -48,19 +47,23 @@ public class RocketLauncher : MonoBehaviour {
 
 	IEnumerator WaitDelay(){
 		yield return new WaitForSeconds (rechargeTime);
-		delay = false;
+		delay 		= false;
+		shooting 	= false;
 		StopCoroutine (WaitDelay ());
 	}
 
 	void Fire(){
 		GameObject rocket = (GameObject)Instantiate (Resources.Load ("Rocket"));
 		rocket.transform.position = shootPoint.position;
-		rocket.transform.rotation = rotation;
-		
-		//add random spray
-		Vector2 direction = new Vector2 (shootPoint2.transform.position.x - shootPoint.transform.position.x, 
-		                                 shootPoint2.transform.position.y - shootPoint.transform.position.y);
-		rocket.GetComponent<Rigidbody2D> ().AddForce (direction * missileSpeed);
+
+		Vector2 vectorToTarget = new Vector2 (shootPoint2.transform.position.x - shootPoint.transform.position.x, 
+		                                      shootPoint2.transform.position.y - shootPoint.transform.position.y);
+
+		float angle = Mathf.Atan2 (vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+		Quaternion q = Quaternion.AngleAxis (angle, Vector3.forward);
+		rocket.transform.rotation = q;
+
+		rocket.GetComponent<Rigidbody2D> ().AddForce (vectorToTarget * missileSpeed);
 		
 		shooting 		 = false;
 		delay 			 = true;
@@ -69,11 +72,8 @@ public class RocketLauncher : MonoBehaviour {
 		StartCoroutine (WaitDelay ());
 	}
 
-
-
-	public void Shoot (Transform sPoint, Quaternion rot) {
+	public void Shoot (Transform sPoint) {
 		shooting 	= true;
 		shootPoint 	= sPoint;
-		rotation 	= rot;
 	}
 }

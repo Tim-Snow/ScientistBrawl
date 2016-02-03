@@ -1,22 +1,21 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class MovementController : MonoBehaviour {
 
+	public 		int				hp;
 	public		string			joystickString;
-	public 		float 			maxMoveSpd;
-	public		float			jumpHeight;
+	public 		float 			maxMoveSpd, jumpHeight;
 	public 		bool			isDead;
 	[HideInInspector]
 	public 		bool 			facingRight;
+	public		Transform		groundCheck;
 	[HideInInspector]
 	public		Animator		anim;
 
-	public		Transform		groundCheck;
-
-	public 		int				hp;
 	private		bool			onGround;
-
+	private		Slider 			slider;
 	private 	Rigidbody2D 	rb;
 
 	void Start () {
@@ -25,8 +24,10 @@ public class MovementController : MonoBehaviour {
 		facingRight = true;
 		rb 			= GetComponent<Rigidbody2D> ();
 		anim 		= gameObject.transform.GetChild(3).GetComponent<Animator> ();
-
 		anim.SetBool("Moving", false);
+		GameObject p = GameObject.Find ("PanelP" + joystickString);
+		slider = p.transform.GetChild (0).GetComponent<Slider> ();
+		slider.value = hp;
 	}
 
 	void CheckDead(){
@@ -36,14 +37,19 @@ public class MovementController : MonoBehaviour {
 			if(isDead == false){
 				isDead = true;
 				anim.SetBool("Dead", true);
-				//anim.Play ("Death", anim.GetLayerIndex("Lower Body"));
-				
+				if(GetComponent<ActionController>().holdingWeapon){
+					GetComponent<ActionController>().Drop();
+				}
+				GetComponent<BoxCollider2D>().enabled = false;
+				GetComponent<CircleCollider2D>().radius = 0.05f;
 			}
 		}
 	}
 
 	void FixedUpdate () {
 		CheckDead ();
+
+		slider.value = hp;
 
 		if (!isDead) {
 			float move = Input.GetAxis ("LeftXAxis" + joystickString);
@@ -59,8 +65,7 @@ public class MovementController : MonoBehaviour {
 				Flip ();
 			if (!facingRight && aim > 0f)
 				Flip ();
-
-			
+						
 			if (move >= 0.05f || move <= -0.05f) {
 				anim.SetBool ("Moving", true);
 				anim.SetFloat ("Speed", Mathf.Abs (move));

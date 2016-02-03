@@ -8,8 +8,7 @@ public class Chainsaw : MonoBehaviour {
 	private SpriteRenderer rend;
 	private Sprite anim1, anim2;
 	private bool toggle;
-
-	// Use this for initialization
+	
 	void Start () {
 		rend = GetComponent<SpriteRenderer> ();
 
@@ -19,11 +18,9 @@ public class Chainsaw : MonoBehaviour {
 		toggle = false;
 		active = false;
 	}
-	
-	// Update is called once per frame
+
 	void FixedUpdate () {
 		active = false;
-
 	}
 
 	public void Use(){

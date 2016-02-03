@@ -15,7 +15,6 @@ public class AK47 : MonoBehaviour {
 	private float 		lifetime;
 	private int 		ammoRemaining, sparkCount;
 	private Transform 	shootPoint;
-	private Quaternion 	rotation;
 	private Sprite 		spark1, spark2, spark3, spark4;
 	private SpriteRenderer rend;
 	
@@ -71,17 +70,20 @@ public class AK47 : MonoBehaviour {
 	void Fire(){
 		GameObject bullet = (GameObject)Instantiate (Resources.Load ("Bullet"));
 		bullet.transform.position = shootPoint.position;
-		bullet.transform.rotation = rotation;
 
-		//add random spray
-		Vector2 direction = new Vector2 (shootPoint2.transform.position.x - shootPoint.transform.position.x, 
-	                                 	 shootPoint2.transform.position.y - shootPoint.transform.position.y);
-		bullet.GetComponent<Rigidbody2D> ().AddForce (direction * bulletSpeed);
+		Vector2 vectorToTarget = new Vector2 (shootPoint2.transform.position.x - shootPoint.transform.position.x, 
+		                                      shootPoint2.transform.position.y - shootPoint.transform.position.y);
+		
+		float angle = Mathf.Atan2 (vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+		Quaternion q = Quaternion.AngleAxis (angle, Vector3.forward);
+		bullet.transform.rotation = q;
+		
+		bullet.GetComponent<Rigidbody2D> ().AddForce (vectorToTarget * bulletSpeed);
 
 		shooting 		 = false;
 		ammoRemaining 	-= 1;
+		delay 			 = true;
 		AnimateSpark ();
-		delay = true;
 
 		StartCoroutine (WaitDelay ());
 	}
@@ -101,9 +103,8 @@ public class AK47 : MonoBehaviour {
 			sparkCount = 1;
 	}
 	
-	public void Shoot (Transform sPoint, Quaternion rot) {
+	public void Shoot (Transform sPoint) {
 		shooting 	= true;
 		shootPoint 	= sPoint;
-		rotation 	= rot;
 	}
 }

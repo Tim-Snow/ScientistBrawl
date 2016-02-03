@@ -3,20 +3,15 @@ using System.Collections;
 
 public class ActionController : MonoBehaviour {
 
-	public 	bool 				canHoldWeapon;
-	public 	bool 				holdingWeapon;
 	public 	int  				joystickNum;
+	public 	bool 				canHoldWeapon, holdingWeapon;
 
-	public Transform			aimPoint;
-	public Transform			armAnchor;
-	public Transform			weaponHoldPosition;
-	public Transform			armHoldPos;
+	public Transform			aimPoint, armAnchor, weaponHoldPosition, armHoldPos;
 	[HideInInspector]
 	public 	Transform 			nearbyPickup;
 
 	private bool				ducking;
-	private string 				joystickString;
-	private string				weaponString;	//find way to get name of game object
+	private string 				joystickString, weaponString;
 	private PickupObject 		weapon;
 	private MovementController	moveCont;
 	private Transform			arms, armL, armR;
@@ -96,7 +91,7 @@ public class ActionController : MonoBehaviour {
 		arms.transform.position   = armHoldPos.transform.position;
 	}
 	
-	void Drop(){
+	public void Drop(){
 		nearbyPickup = weapon.gameObject.transform;
 		moveCont.anim.SetBool ("Holding", false);
 		weapon.Drop ();
@@ -112,45 +107,45 @@ public class ActionController : MonoBehaviour {
 	}
 	
 	void Shoot(){
-		if(weapon.name.Equals("rocketlauncher")){
-			weapon.GetComponent<RocketLauncher> ().Shoot (weapon.shootPoint, weapon.gameObject.transform.rotation);
+		if(weapon.objName.Equals("rocketlauncher")){
+			weapon.GetComponent<RocketLauncher> ().Shoot (weapon.shootPoint);
 		}
-		if(weapon.name.Equals("ak47")){
-			weapon.GetComponent<AK47> ().Shoot (weapon.shootPoint, weapon.gameObject.transform.rotation);
+		if(weapon.objName.Equals("ak47")){
+			weapon.GetComponent<AK47> ().Shoot (weapon.shootPoint);
 		}
-		if(weapon.name.Equals("chainsaw")){
+		if(weapon.objName.Equals("chainsaw")){
 			weapon.GetComponent<Chainsaw> ().Use ();
 		}
 	}
 		
 	void Aim(){
-		if (!ducking) {
-			aimPoint.position = weaponHoldPosition.position;
-		} else {
-			aimPoint.position = armAnchor.position;
-		}
+		if (!ducking) {		aimPoint.position = weaponHoldPosition.position; } 
+		else 		  {		aimPoint.position = armAnchor.position;		 	 }
 
-		Vector3 aimInput = new Vector3 (Input.GetAxis ("RightXAxis" + joystickString), -Input.GetAxis ("RightYAxis" + joystickString), 0);
+		Vector3 aimInput = new Vector3 ( Input.GetAxis ("RightXAxis" + joystickString), 
+		                                -Input.GetAxis ("RightYAxis" + joystickString), 0);
+
 		float posInX = Mathf.Abs (aimInput.x);
 		float posInY = Mathf.Abs (aimInput.y);
-		bool joyPulledBack = (aimInput.x >= 0.2f || aimInput.y >= 0.2f || aimInput.x <= -0.2f || aimInput.y <= -0.2f || 
-		                      ((posInX + posInY) / 2) >= 0.2f) ? true : false;
+
+		bool joyPulledBack = (aimInput.x >=  0.2f || aimInput.y >= 0.2f || aimInput.x <= -0.2f || 
+		                      aimInput.y <= -0.2f || ((posInX + posInY) / 2) >= 0.2f) ? true : false;
 		
 		if (joyPulledBack && weapon != null) {
 
 			Vector3 vectorToTarget;
 
 			if (!ducking) {
-				aimPoint.position = weaponHoldPosition.position + (aimInput/3);
+				aimPoint.position = weaponHoldPosition.position + (aimInput/2);
 				vectorToTarget = aimPoint.position - weaponHoldPosition.position;
 			} else {
-				aimPoint.position = armAnchor.position + (aimInput/3);
+				aimPoint.position = armAnchor.position + (aimInput/2);
 				vectorToTarget = aimPoint.position - armAnchor.position;
 			}
 
 			float angle;
 			if (moveCont.facingRight) {
-				angle = Mathf.Atan2 (vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+				angle = Mathf.Atan2 (vectorToTarget.y,  vectorToTarget.x) * Mathf.Rad2Deg;
 			} else {
 				angle = Mathf.Atan2 (vectorToTarget.y, -vectorToTarget.x) * Mathf.Rad2Deg;
 			}
