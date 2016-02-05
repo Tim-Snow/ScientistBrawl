@@ -46,7 +46,7 @@ public class Rocket : MonoBehaviour {
 		GetComponent<Rigidbody2D> ().Sleep ();
 
 		if (canDamage && coll.gameObject.layer == LayerMask.NameToLayer ("Player")) {
-			coll.gameObject.GetComponent<MovementController>().hp -= 50;
+			coll.gameObject.GetComponent<MovementController>().Hit(50);
 		}
 
 		//create coroutine to destroy when particles have ended

@@ -3,16 +3,13 @@ using System.Collections;
 
 public class RocketLauncher : MonoBehaviour {
 
-	public int 			damage;
-	public float 		rechargeTime;
-	public float 		reloadTime;
-	public int 			ammoAmount;
-	public int 			missileSpeed;
-	public bool 		shooting;
-	public Transform 	shootPoint2;
+	public 	int 		damage, ammoAmount, missileSpeed;
+	public 	float 		rechargeTime, reloadTime;
+	public 	bool 		shooting, reloading;
+	public 	Transform 	shootPoint2;
 	
-	private bool 		reloading, delay;
-	private int 		ammoRemaining;
+	private bool 		delay;
+	public 	int 		ammoRemaining;
 	private Transform 	shootPoint;
 
 	void Start () {
@@ -50,6 +47,19 @@ public class RocketLauncher : MonoBehaviour {
 		delay 		= false;
 		shooting 	= false;
 		StopCoroutine (WaitDelay ());
+	}
+
+	public void ForceReload(){
+		if (ammoRemaining != ammoAmount) {
+			shooting = false;
+			reloading = true;
+			StartCoroutine (Reload ());
+		}
+	}
+
+	public void StopReload(){
+		reloading = false;
+		StopCoroutine (Reload ());
 	}
 
 	void Fire(){

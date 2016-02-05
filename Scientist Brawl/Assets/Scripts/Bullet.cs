@@ -26,17 +26,19 @@ public class Bullet : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D coll){
-		if (rb != null) {
-			rb.gravityScale = 1f;
-		}
-		lifetime = 2f;
-		StopCoroutine (CheckExpire ());
-		StartCoroutine (CheckExpire ());
+		if(coll.gameObject.layer != 1 << LayerMask.NameToLayer ("UI")){
+			if (rb != null) {
+				rb.gravityScale = 1f;
+			}
+			lifetime = 2f;
+			StopCoroutine (CheckExpire ());
+			StartCoroutine (CheckExpire ());
 
-		if (canDamage && coll.gameObject.layer == LayerMask.NameToLayer ("Player")) {
-			coll.gameObject.GetComponent<MovementController>().hp -= 10;
-		}
+			if (canDamage && coll.gameObject.layer == 1 << LayerMask.NameToLayer ("Player")) {
+				coll.gameObject.GetComponent<MovementController>().Hit(10);
+			}
 
-		canDamage = false;
+			canDamage = false;
+		}
 	}
 }

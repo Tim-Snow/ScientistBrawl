@@ -51,6 +51,8 @@
      <Compile Include="Assets\Scripts\Bullet.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\Chainsaw.cs" />
+     <Compile Include="Assets\Scripts\CharSelectController.cs" />
+     <Compile Include="Assets\Scripts\CustomizationController.cs" />
      <Compile Include="Assets\Scripts\MovementController.cs" />
      <Compile Include="Assets\Scripts\PickupObject.cs" />
      <Compile Include="Assets\Scripts\PlayerManager.cs" />
@@ -58,6 +60,7 @@
      <Compile Include="Assets\Scripts\ProjectileController.cs" />
      <Compile Include="Assets\Scripts\Rocket.cs" />
      <Compile Include="Assets\Scripts\RocketLauncher.cs" />
+     <Compile Include="Assets\Scripts\UiController.cs" />
      <Compile Include="Assets\Scripts\WeaponSpawner.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/Programming/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

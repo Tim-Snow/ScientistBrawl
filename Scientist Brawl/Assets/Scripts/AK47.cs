@@ -3,17 +3,17 @@ using System.Collections;
 
 public class AK47 : MonoBehaviour {
 
-	public int 			damage;
+	public int 			damage, ammoRemaining;
 	public float 		rechargeTime;
 	public float 		reloadTime;
 	public int 			ammoAmount;
 	public int 			bulletSpeed;
 	public Transform 	spark, shootPoint2;
-	public bool 		shooting;
+	public bool 		shooting, reloading;
 
-	private bool 		reloading, delay;
+	private bool 		delay;
 	private float 		lifetime;
-	private int 		ammoRemaining, sparkCount;
+	private int 		sparkCount;
 	private Transform 	shootPoint;
 	private Sprite 		spark1, spark2, spark3, spark4;
 	private SpriteRenderer rend;
@@ -65,6 +65,19 @@ public class AK47 : MonoBehaviour {
 		yield return new WaitForSeconds (rechargeTime);
 		delay = false;
 		StopCoroutine (WaitDelay ());
+	}
+
+	public void ForceReload(){
+		if (ammoRemaining != ammoAmount) {
+			shooting = false;
+			reloading = true;
+			StartCoroutine (Reload ());
+		}
+	}
+
+	public void StopReload(){
+		reloading = false;
+		StopCoroutine (Reload ());
 	}
 
 	void Fire(){

@@ -3,8 +3,8 @@ using System.Collections;
 
 public class ActionController : MonoBehaviour {
 
-	public 	int  				joystickNum;
 	public 	bool 				canHoldWeapon, holdingWeapon;
+	public 	int  				joystickNum, weaponCurAmmo, weaponMaxAmmo;
 
 	public Transform			aimPoint, armAnchor, weaponHoldPosition, armHoldPos;
 	[HideInInspector]
@@ -16,8 +16,7 @@ public class ActionController : MonoBehaviour {
 	private MovementController	moveCont;
 	private Transform			arms, armL, armR;
 	private SpriteRenderer		armLSR, armRSR;
-
-	private Sprite			armIdleRes, armHoldRes;
+	private Sprite				armIdleRes, armHoldRes;
 
 	void Start () {
 		moveCont 	= GetComponent<MovementController> ();
@@ -52,19 +51,26 @@ public class ActionController : MonoBehaviour {
 
 	void FixedUpdate () {
 		arms.transform.position = armAnchor.transform.position;
+
 		if (!moveCont.isDead) {
 			CheckDuck();
-			Aim();
 
-			if (!holdingWeapon)//eventually add parameter for arm mods to disable pickups
-				canHoldWeapon = true;
-
-			if (holdingWeapon) {
+			if(weapon != null && holdingWeapon){
+				Aim();
 				arms.transform.position = armHoldPos.transform.position;
+
+				if(weapon.objName.Equals("rocketlauncher")){
+					weaponCurAmmo = weapon.GetComponent<RocketLauncher> ().ammoRemaining;
+				}
+				if(weapon.objName.Equals("ak47")){
+					weaponCurAmmo = weapon.GetComponent<AK47> ().ammoRemaining;
+				}
+			} else {
+				canHoldWeapon = true;
 			}
 
 			if (Input.GetAxis ("RT" + joystickString) > 0.5 && holdingWeapon) {
-				Shoot();
+				Use();
 			}
 
 			if (Input.GetButton ("B" + joystickString) && nearbyPickup != null && canHoldWeapon && !holdingWeapon) {
@@ -74,6 +80,18 @@ public class ActionController : MonoBehaviour {
 			if (Input.GetButton ("Y" + joystickString) && holdingWeapon) {
 				Drop ();
 			}
+
+			if (Input.GetButton ("X" + joystickString) && holdingWeapon) {
+				Reload ();
+			}
+		}
+	}
+
+	void Reload(){
+		if(weapon.objName.Equals("rocketlauncher")){
+			weapon.GetComponent<RocketLauncher> ().ForceReload();
+		} else if(weapon.objName.Equals("ak47")){
+			weapon.GetComponent<AK47> ().ForceReload();
 		}
 	}
 
@@ -89,9 +107,27 @@ public class ActionController : MonoBehaviour {
 		theScale.x 				 *= -1;
 		armR.transform.localScale = theScale;
 		arms.transform.position   = armHoldPos.transform.position;
+
+		if(weapon.objName.Equals("rocketlauncher")){
+			weaponCurAmmo = weapon.GetComponent<RocketLauncher> ().ammoAmount;
+			weaponMaxAmmo = weaponCurAmmo;
+		} else if(weapon.objName.Equals("ak47")){
+			weaponCurAmmo = weapon.GetComponent<AK47> ().ammoAmount;
+			weaponMaxAmmo = weaponCurAmmo;
+		} else {
+			weaponCurAmmo = 0;
+			weaponMaxAmmo = weaponCurAmmo;
+		}
 	}
 	
 	public void Drop(){
+		if(weapon.objName.Equals("rocketlauncher")){
+			weapon.GetComponent<RocketLauncher> ().StopReload();
+		}
+		if(weapon.objName.Equals("ak47")){
+			weapon.GetComponent<AK47> ().StopReload();
+		}
+
 		nearbyPickup = weapon.gameObject.transform;
 		moveCont.anim.SetBool ("Holding", false);
 		weapon.Drop ();
@@ -106,12 +142,14 @@ public class ActionController : MonoBehaviour {
 		arms.transform.position   = armAnchor.transform.position;
 	}
 	
-	void Shoot(){
+	void Use(){
 		if(weapon.objName.Equals("rocketlauncher")){
-			weapon.GetComponent<RocketLauncher> ().Shoot (weapon.shootPoint);
+			if(!weapon.GetComponent<RocketLauncher> ().reloading)
+				weapon.GetComponent<RocketLauncher> ().Shoot (weapon.shootPoint);
 		}
 		if(weapon.objName.Equals("ak47")){
-			weapon.GetComponent<AK47> ().Shoot (weapon.shootPoint);
+			if(!weapon.GetComponent<AK47> ().reloading)
+				weapon.GetComponent<AK47> ().Shoot (weapon.shootPoint);
 		}
 		if(weapon.objName.Equals("chainsaw")){
 			weapon.GetComponent<Chainsaw> ().Use ();
@@ -119,8 +157,8 @@ public class ActionController : MonoBehaviour {
 	}
 		
 	void Aim(){
-		if (!ducking) {		aimPoint.position = weaponHoldPosition.position; } 
-		else 		  {		aimPoint.position = armAnchor.position;		 	 }
+		if (!ducking) {	aimPoint.position = weaponHoldPosition.position; } 
+		else 		  {	aimPoint.position = armAnchor.position;		 	 }
 
 		Vector3 aimInput = new Vector3 ( Input.GetAxis ("RightXAxis" + joystickString), 
 		                                -Input.GetAxis ("RightYAxis" + joystickString), 0);
