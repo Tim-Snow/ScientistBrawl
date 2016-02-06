@@ -14,7 +14,7 @@ public class MovementController : MonoBehaviour {
 	[HideInInspector]
 	public		Animator		anim;
 
-	private		bool			onGround, immune;
+	private		bool			onGround, immune, moving;
 	private		Slider 			slider;
 	private 	Rigidbody2D 	rb;
 
@@ -26,6 +26,10 @@ public class MovementController : MonoBehaviour {
 		rb 			= GetComponent<Rigidbody2D> ();
 		anim 		= gameObject.transform.GetChild(3).GetComponent<Animator> ();
 		anim.SetBool("Moving", false);
+	}
+
+	public bool IsMoving(){
+		return moving;
 	}
 
 	public void Hit(int damage){
@@ -75,8 +79,8 @@ public class MovementController : MonoBehaviour {
 
 	void Move(float m){
 		rb.velocity = new Vector2 (m * maxMoveSpd, rb.velocity.y);
-		
 		if (m >= 0.1f && !facingRight) {
+
 			Flip ();
 		} else if (m <= -0.1f && facingRight) {
 			Flip ();
@@ -84,9 +88,11 @@ public class MovementController : MonoBehaviour {
 
 		if (m >= 0.05f || m <= -0.05f) {
 			anim.SetBool ("Moving", true);
+			moving = true;
 			anim.SetFloat ("Speed", Mathf.Abs (m));
 		} else { 
 			anim.SetBool ("Moving", false);
+			moving = false;
 		}
 	}
 

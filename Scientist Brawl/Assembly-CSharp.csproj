@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\Chainsaw.cs" />
      <Compile Include="Assets\Scripts\CharSelectController.cs" />
      <Compile Include="Assets\Scripts\CustomizationController.cs" />
+     <Compile Include="Assets\Scripts\HeadMod.cs" />
      <Compile Include="Assets\Scripts\MovementController.cs" />
      <Compile Include="Assets\Scripts\PickupObject.cs" />
      <Compile Include="Assets\Scripts\PlayerManager.cs" />

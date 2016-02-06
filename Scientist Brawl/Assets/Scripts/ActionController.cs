@@ -2,15 +2,16 @@
 using System.Collections;
 
 public class ActionController : MonoBehaviour {
-
-	public 	bool 				canHoldWeapon, holdingWeapon;
+	public 	bool 				canHoldWeapon, holdingWeapon, canDropWeapon;
 	public 	int  				joystickNum, weaponCurAmmo, weaponMaxAmmo;
 
 	public Transform			aimPoint, armAnchor, weaponHoldPosition, armHoldPos;
 	[HideInInspector]
 	public 	Transform 			nearbyPickup;
 
-	private bool				ducking;
+	private int 				armMod;
+	private HeadMod 			headModScript;
+	private bool				ducking, usingHeadMod;
 	private string 				joystickString, weaponString;
 	private PickupObject 		weapon;
 	private MovementController	moveCont;
@@ -18,7 +19,27 @@ public class ActionController : MonoBehaviour {
 	private SpriteRenderer		armLSR, armRSR;
 	private Sprite				armIdleRes, armHoldRes;
 
+	public void SetArmMod(int m){
+		armMod = m;
+
+		if (armMod != 0) {
+		holdingWeapon = true;
+		canHoldWeapon = false;
+		canDropWeapon = false;
+			//change hp
+		}
+	}
+
+	public bool IsDucking(){
+		return ducking;
+	}
+
+	public void SetHeadMod(bool b){
+		usingHeadMod = b;
+	}
+
 	void Start () {
+
 		moveCont 	= GetComponent<MovementController> ();
 		arms 		= transform.GetChild (4);
 		armL 		= arms.transform.GetChild (0);
@@ -26,11 +47,14 @@ public class ActionController : MonoBehaviour {
 		armLSR 		= armL.GetComponent<SpriteRenderer> ();
 		armRSR 		= armR.GetComponent<SpriteRenderer> ();
 
+		headModScript = transform.GetChild (5).GetComponent<HeadMod>();
+
 		Object [] sprites;
 		sprites = Resources.LoadAll ("scientist2");
-		armIdleRes = (Sprite)sprites[3];
-		armHoldRes = (Sprite)sprites[2];
-
+		if (armMod == 0) { //Load regular arms as not modified
+			armIdleRes = (Sprite)sprites [3];
+			armHoldRes = (Sprite)sprites [2];
+		}
 		if(joystickNum == 0)
 			joystickNum = 1;
 
@@ -40,7 +64,7 @@ public class ActionController : MonoBehaviour {
 
 	void CheckDuck(){
 		float duckInput = Input.GetAxis ("LeftYAxis" + joystickString);
-		if (duckInput <= -0.2f) {
+		if (duckInput <= -0.4f) {
 			ducking = true;
 			moveCont.anim.SetBool ("Ducking", true);
 		} else {
@@ -55,6 +79,7 @@ public class ActionController : MonoBehaviour {
 		if (!moveCont.isDead) {
 			CheckDuck();
 
+			//change logic for mods
 			if(weapon != null && holdingWeapon){
 				Aim();
 				arms.transform.position = armHoldPos.transform.position;
@@ -81,6 +106,10 @@ public class ActionController : MonoBehaviour {
 				Drop ();
 			}
 
+			if (Input.GetButton ("RB" + joystickString) && usingHeadMod) {
+				headModScript.Use();
+			}
+			
 			if (Input.GetButton ("X" + joystickString) && holdingWeapon) {
 				Reload ();
 			}
